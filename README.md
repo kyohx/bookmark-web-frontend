@@ -6,6 +6,10 @@
 
 バックエンドWebAPI([bookmark-sample](https://github.com/kyohx/bookmark-sample))が動作していること
 
+## スクリーンショット
+
+<img width="1238" height="1194" alt="Image" src="https://github.com/user-attachments/assets/98f9755a-f268-4af5-84c7-f7f78f68ad3b" />
+
 ## 技術スタック
 
 - **Framework**: React + Vite
