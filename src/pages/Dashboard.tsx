@@ -8,7 +8,6 @@ import { Plus, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
 export const Dashboard: React.FC = () => {
     const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
-    const [total, setTotal] = useState(0);
     const [page, setPage] = useState(1);
     const [tagFilter, setTagFilter] = useState('');
     const [isModalOpen, setIsModalOpen] = useState(false);
@@ -33,8 +32,12 @@ export const Dashboard: React.FC = () => {
         setLoading(true);
         try {
             const data = await api.getBookmarks(page, pageSize, tagFilter || undefined);
-            setBookmarks(data.items);
-            setTotal(data.total);
+            // If no items returned and we're not on page 1, go back to previous page
+            if (data.items.length === 0 && page > 1) {
+                setPage(p => p - 1);
+            } else {
+                setBookmarks(data.items);
+            }
         } catch (error) {
             console.error('Failed to fetch bookmarks', error);
         } finally {
@@ -133,7 +136,7 @@ export const Dashboard: React.FC = () => {
         setIsModalOpen(false);
     };
 
-    const totalPages = Math.ceil(total / pageSize);
+
 
     return (
         <div style={{ minHeight: '100vh', paddingBottom: 'var(--spacing-xl)' }}>
@@ -193,7 +196,7 @@ export const Dashboard: React.FC = () => {
                             </div>
                         )}
 
-                        {totalPages > 1 && (
+                        {(page > 1 || bookmarks.length === pageSize) && (
                             <div className="flex justify-center items-center gap-md mt-lg">
                                 <button
                                     className="btn btn-secondary"
@@ -204,12 +207,12 @@ export const Dashboard: React.FC = () => {
                                     Prev
                                 </button>
                                 <span style={{ color: 'var(--color-text-muted)' }}>
-                                    Page {page} of {totalPages}
+                                    Page {page}
                                 </span>
                                 <button
                                     className="btn btn-secondary"
-                                    disabled={page === totalPages}
-                                    onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                                    disabled={bookmarks.length < pageSize}
+                                    onClick={() => setPage(p => p + 1)}
                                 >
                                     Next
                                     <ChevronRight size={16} />
