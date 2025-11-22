@@ -103,12 +103,12 @@ class ApiClient {
         return this.request<User>('/me');
     }
 
-    async getBookmarks(page = 1, size = 10, tag?: string): Promise<{ items: Bookmark[], total: number }> {
+    async getBookmarks(page = 1, size = 10, tag?: string): Promise<{ items: Bookmark[] }> {
         const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
         if (tag) params.append('tag', tag);
         // API returns { bookmarks: Bookmark[] } and no total count
         const data = await this.request<{ bookmarks: Bookmark[] }>(`/bookmarks?${params.toString()}`);
-        return { items: data.bookmarks, total: 0 };
+        return { items: data.bookmarks };
     }
 
     async getBookmark(hashed_id: string): Promise<Bookmark> {

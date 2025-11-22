@@ -51,7 +51,7 @@ describe('Dashboard', () => {
     beforeEach(() => {
         vi.clearAllMocks();
         vi.mocked(api.getMe).mockResolvedValue({ name: 'testuser', authority: 2 }); // READ_WRITE authority
-        vi.mocked(api.getBookmarks).mockResolvedValue({ items: mockBookmarks, total: 2 });
+        vi.mocked(api.getBookmarks).mockResolvedValue({ items: mockBookmarks });
     });
 
     it('renders bookmark list', async () => {
@@ -176,7 +176,7 @@ describe('Dashboard', () => {
             updated_at: '2023-01-01'
         }));
 
-        vi.mocked(api.getBookmarks).mockResolvedValue({ items: manyBookmarks.slice(0, 12), total: 25 });
+        vi.mocked(api.getBookmarks).mockResolvedValue({ items: manyBookmarks.slice(0, 12) });
 
         render(
             <BrowserRouter>
@@ -189,7 +189,7 @@ describe('Dashboard', () => {
         });
 
         // Check pagination controls are visible
-        expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
+        expect(screen.getByText('Page 1')).toBeInTheDocument();
 
         // Prev button should be disabled on first page
         const prevButton = screen.getByText('Prev');
@@ -217,7 +217,8 @@ describe('Dashboard', () => {
             updated_at: '2023-01-01'
         }));
 
-        vi.mocked(api.getBookmarks).mockResolvedValue({ items: manyBookmarks.slice(0, 12), total: 25 });
+        // Initial page with 12 items
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: manyBookmarks.slice(0, 12) });
 
         render(
             <BrowserRouter>
@@ -229,31 +230,35 @@ describe('Dashboard', () => {
             expect(screen.getByText('Site 1')).toBeInTheDocument();
         });
 
+        // Page 2 also has 12 items
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: manyBookmarks.slice(12, 24) });
+
         // Navigate to page 2
         const nextButton = screen.getByText('Next');
         fireEvent.click(nextButton);
 
         await waitFor(() => {
-            expect(api.getBookmarks).toHaveBeenCalledWith(2, 12, undefined);
+            expect(screen.getByText('Site 13')).toBeInTheDocument();
         });
+
+        // Page 3 has only 1 item (last page)
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: manyBookmarks.slice(24, 25) });
 
         // Navigate to page 3 (last page)
         fireEvent.click(nextButton);
 
+        // Wait for last page data to load
         await waitFor(() => {
-            expect(api.getBookmarks).toHaveBeenCalledWith(3, 12, undefined);
+            expect(screen.getByText('Site 25')).toBeInTheDocument();
         });
 
-        // Next button should be disabled on last page
-        await waitFor(() => {
-            expect(screen.getByText('Page 3 of 3')).toBeInTheDocument();
-        });
+        // Next button should be disabled on last page (less than 12 items)
         expect(nextButton).toBeDisabled();
     });
 
     it('hides pagination when only one page exists', async () => {
         // Only 2 items, less than page size (12)
-        vi.mocked(api.getBookmarks).mockResolvedValue({ items: mockBookmarks, total: 2 });
+        vi.mocked(api.getBookmarks).mockResolvedValue({ items: mockBookmarks });
 
         render(
             <BrowserRouter>
@@ -265,9 +270,62 @@ describe('Dashboard', () => {
             expect(screen.getByText('Example Site')).toBeInTheDocument();
         });
 
-        // Pagination controls should not be visible
-        expect(screen.queryByText(/Page \d+ of \d+/)).not.toBeInTheDocument();
+        // Pagination controls should not be visible on page 1 with less than pageSize items
+        expect(screen.queryByText(/Page \d+/)).not.toBeInTheDocument();
         expect(screen.queryByText('Prev')).not.toBeInTheDocument();
         expect(screen.queryByText('Next')).not.toBeInTheDocument();
+    });
+
+    it('handles bookmarks count as exact multiple of pageSize without empty page', async () => {
+        // Exactly 24 bookmarks (2 pages of 12 items each)
+        const exactMultipleBookmarks = Array.from({ length: 24 }, (_, i) => ({
+            hashed_id: `${i + 1}`,
+            url: `https://example${i + 1}.com`,
+            memo: `Site ${i + 1}`,
+            tags: ['tag1'],
+            created_at: '2023-01-01',
+            updated_at: '2023-01-01'
+        }));
+
+        // Page 1 with 12 items
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: exactMultipleBookmarks.slice(0, 12) });
+
+        render(
+            <BrowserRouter>
+                <Dashboard />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('Site 1')).toBeInTheDocument();
+        });
+
+        // Page 2 with 12 items
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: exactMultipleBookmarks.slice(12, 24) });
+
+        // Navigate to page 2
+        const nextButton = screen.getByText('Next');
+        fireEvent.click(nextButton);
+
+        await waitFor(() => {
+            expect(screen.getByText('Site 13')).toBeInTheDocument();
+        });
+
+        // Page 3 would have 0 items (empty page)
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: [] });
+
+        // After automatically going back to page 2, it will fetch page 2 data again
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: exactMultipleBookmarks.slice(12, 24) });
+
+        // Try to navigate to page 3
+        fireEvent.click(nextButton);
+
+        // Should automatically go back to page 2 instead of showing empty page
+        await waitFor(() => {
+            expect(screen.getByText('Site 13')).toBeInTheDocument();
+        });
+
+        // Should still be on page 2
+        expect(screen.getByText('Page 2')).toBeInTheDocument();
     });
 });
