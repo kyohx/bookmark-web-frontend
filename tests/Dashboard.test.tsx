@@ -314,6 +314,9 @@ describe('Dashboard', () => {
         // Page 3 would have 0 items (empty page)
         vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: [] });
 
+        // After automatically going back to page 2, it will fetch page 2 data again
+        vi.mocked(api.getBookmarks).mockResolvedValueOnce({ items: exactMultipleBookmarks.slice(12, 24) });
+
         // Try to navigate to page 3
         fireEvent.click(nextButton);
 
