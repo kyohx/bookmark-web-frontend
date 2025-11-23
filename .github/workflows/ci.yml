@@ -3,7 +3,7 @@ name: CI
 on:
   push:
     branches: [ main ]
-    paths:
+    paths: &ci-paths
       - 'src/**'
       - 'tests/**'
       - '.github/workflows/**'
@@ -15,16 +15,7 @@ on:
       - 'index.html'
   pull_request:
     branches: [ main ]
-    paths:
-      - 'src/**'
-      - 'tests/**'
-      - '.github/workflows/**'
-      - 'package.json'
-      - 'package-lock.json'
-      - 'vite.config.ts'
-      - 'tsconfig*.json'
-      - 'eslint.config.js'
-      - 'index.html'
+    paths: *ci-paths
 
 jobs:
   test-and-lint:
