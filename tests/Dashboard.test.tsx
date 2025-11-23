@@ -84,6 +84,10 @@ describe('Dashboard', () => {
 
         expect(screen.getByText('Delete Bookmark')).toBeInTheDocument();
         expect(screen.getByText('Are you sure you want to delete this bookmark? This action cannot be undone.')).toBeInTheDocument();
+
+        // Check if target name is displayed
+        // Check if target name is displayed (it appears twice: once in card, once in modal)
+        expect(screen.getAllByText('Example Site')).toHaveLength(2);
     });
 
     it('filters bookmarks by tag', async () => {
