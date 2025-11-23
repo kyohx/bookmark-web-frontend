@@ -28,9 +28,9 @@ flowchart TD
 flowchart TD
     Dashboard1["ダッシュボード"] -->|"Add Bookmarkボタン<br/>クリック<br/>(編集権限があること)"| AddModal["ブックマーク追加モーダル"]
     AddModal -->|"Saveボタン<br/>クリック"| AddConfirm["追加確認モーダル"]
-    AddModal -->|"✕ボタンまたは<br/>背景クリック"| Dashboard2["ダッシュボード"]
+    AddModal -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2["ダッシュボード"]
     AddConfirm -->|"Addボタン<br/>クリック"| Dashboard2
-    AddConfirm -->|"Cancelボタン<br/>クリック"| AddModal
+    AddConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2
     
     classDef screenStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
     classDef modalStyle fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#fff
@@ -49,9 +49,9 @@ flowchart TD
 flowchart TD
     Dashboard1["ダッシュボード"] -->|"ブックマークカードの<br/>Editボタンクリック<br/>(編集権限があること)"| EditModal["ブックマーク編集モーダル"]
     EditModal -->|"Saveボタン<br/>クリック"| EditConfirm["編集確認モーダル"]
-    EditModal -->|"✕ボタンまたは<br/>背景クリック"| Dashboard2["ダッシュボード"]
+    EditModal -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2["ダッシュボード"]
     EditConfirm -->|"Save Changesボタン<br/>クリック"| Dashboard2
-    EditConfirm -->|"Cancelボタン<br/>クリック"| EditModal
+    EditConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2
     
     classDef screenStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
     classDef modalStyle fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#fff
@@ -70,7 +70,7 @@ flowchart TD
 flowchart TD
     Dashboard1["ダッシュボード"] -->|"ブックマークカードの<br/>Deleteボタンクリック<br/>(編集権限があること)"| DeleteConfirm["削除確認モーダル"]
     DeleteConfirm -->|"Deleteボタン<br/>クリック"| Dashboard2["ダッシュボード"]
-    DeleteConfirm -->|"Cancelボタン<br/>クリック"| Dashboard2
+    DeleteConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2
     
     classDef screenStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
     classDef confirmStyle fill:#dc2626,stroke:#991b1b,stroke-width:3px,color:#fff

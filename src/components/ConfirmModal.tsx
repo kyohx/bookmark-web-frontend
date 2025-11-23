@@ -5,6 +5,7 @@ interface ConfirmModalProps {
     isOpen: boolean;
     title: string;
     message: string;
+    targetName?: string;
     onConfirm: () => void;
     onCancel: () => void;
     confirmText?: string;
@@ -15,6 +16,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
     isOpen,
     title,
     message,
+    targetName,
     onConfirm,
     onCancel,
     confirmText = 'Delete',
@@ -60,9 +62,25 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                     </h2>
                 </div>
 
-                <p style={{ marginBottom: 'var(--spacing-lg)', color: 'var(--color-text-muted)' }}>
+                <p style={{ marginBottom: 'var(--spacing-md)', color: 'var(--color-text-muted)' }}>
                     {message}
                 </p>
+
+                {targetName && (
+                    <div style={{
+                        marginBottom: 'var(--spacing-lg)',
+                        padding: 'var(--spacing-sm) var(--spacing-md)',
+                        backgroundColor: 'var(--color-background-alt)',
+                        borderRadius: 'var(--radius-md)',
+                        fontSize: 'var(--font-size-md)',
+                        fontWeight: 500,
+                        overflow: 'hidden',
+                        textOverflow: 'ellipsis',
+                        whiteSpace: 'nowrap'
+                    }}>
+                        {targetName}
+                    </div>
+                )}
 
                 <div className="flex gap-md" style={{ justifyContent: 'flex-end' }}>
                     <button type="button" onClick={onCancel} className="btn btn-secondary">

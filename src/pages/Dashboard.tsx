@@ -13,7 +13,7 @@ export const Dashboard: React.FC = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [editingBookmark, setEditingBookmark] = useState<Bookmark | null>(null);
     const [loading, setLoading] = useState(false);
-    const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; hashedId: string | null }>({ isOpen: false, hashedId: null });
+    const [confirmDelete, setConfirmDelete] = useState<{ isOpen: boolean; hashedId: string | null; targetName?: string }>({ isOpen: false, hashedId: null });
     const [confirmSave, setConfirmSave] = useState<{
         isOpen: boolean;
         hashedId?: string;
@@ -23,6 +23,7 @@ export const Dashboard: React.FC = () => {
         title: string;
         message: string;
         confirmText: string;
+        targetName?: string;
     } | null>(null);
     const [currentUser, setCurrentUser] = useState<User | null>(null);
 
@@ -78,7 +79,9 @@ export const Dashboard: React.FC = () => {
     };
 
     const handleDelete = (hashed_id: string) => {
-        setConfirmDelete({ isOpen: true, hashedId: hashed_id });
+        const target = bookmarks.find(b => b.hashed_id === hashed_id);
+        const targetName = target ? (target.memo || target.url) : undefined;
+        setConfirmDelete({ isOpen: true, hashedId: hashed_id, targetName });
     };
 
     const confirmDeleteAction = async () => {
@@ -109,7 +112,8 @@ export const Dashboard: React.FC = () => {
             tags,
             title: isEditing ? "Save Changes" : "Add Bookmark",
             message: isEditing ? "Do you want to save the changes to this bookmark?" : "Do you want to add this bookmark?",
-            confirmText: isEditing ? "Save Changes" : "Add"
+            confirmText: isEditing ? "Save Changes" : "Add",
+            targetName: memo || url
         });
     };
 
@@ -236,6 +240,7 @@ export const Dashboard: React.FC = () => {
                 message="Are you sure you want to delete this bookmark? This action cannot be undone."
                 onConfirm={confirmDeleteAction}
                 onCancel={cancelDelete}
+                targetName={confirmDelete.targetName}
             />
 
             <ConfirmModal
@@ -246,6 +251,7 @@ export const Dashboard: React.FC = () => {
                 onCancel={cancelSave}
                 confirmText={confirmSave?.confirmText ?? ""}
                 confirmButtonClass="btn-primary"
+                targetName={confirmSave?.targetName}
             />
         </div>
     );
