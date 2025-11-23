@@ -1,4 +1,6 @@
-export const API_BASE = ''; // Proxied by Vite
+// 環境変数からAPI URLを取得。未設定の場合は空文字列（Viteプロキシ使用）
+export const API_BASE = import.meta.env.VITE_BACKEND_API_URL || '';
+
 
 export interface User {
     name: string;
