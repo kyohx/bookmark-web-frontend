@@ -1,4 +1,5 @@
-export const API_BASE = ''; // Proxied by Vite
+// Get API base URL from environment variable. Uses empty string (Vite proxy) if not set.
+export const API_BASE = import.meta.env.VITE_BACKEND_API_URL || '';
 
 export interface User {
     name: string;
