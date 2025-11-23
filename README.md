@@ -1,5 +1,7 @@
 # bookmark-web-frontend
 
+[![CI](https://github.com/kyohx/bookmark-web-frontend/workflows/CI/badge.svg)](https://github.com/kyohx/bookmark-web-frontend/actions)
+
 ## 概要
 
 ブックマークを管理するためのWebフロントエンドアプリケーション
@@ -21,6 +23,7 @@
 
 ## ディレクトリ構造
 
+- `docs/` - ドキュメント
 - `src/` - ソースコード
   - `api/` - APIクライアント
   - `components/` - 再利用可能なコンポーネント
