@@ -1,24 +1,11 @@
-import { describe, it, expect, vi, beforeEach, afterEach } from 'vitest';
+import { describe, it, expect, vi, afterEach } from 'vitest';
 
 describe('API Client - Environment Variables', () => {
-    let originalViteBackendApiUrl: string | undefined;
-
-    beforeEach(() => {
-        // Save original environment variable
-        originalViteBackendApiUrl = import.meta.env.VITE_BACKEND_API_URL;
-    });
-
     afterEach(() => {
-        // Restore original environment variable (using type assertion for testing)
-        const env = import.meta.env as Record<string, string | undefined>;
-        if (originalViteBackendApiUrl !== undefined) {
-            env.VITE_BACKEND_API_URL = originalViteBackendApiUrl;
-        } else {
-            delete env.VITE_BACKEND_API_URL;
-        }
-        // Clear module cache for re-import
+        vi.unstubAllEnvs();
         vi.resetModules();
     });
+
 
     it('uses the URL when VITE_BACKEND_API_URL is set', async () => {
         // Set environment variable
