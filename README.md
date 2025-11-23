@@ -107,4 +107,4 @@ npm run lint
 
 ## 詳細仕様
 
-[spec.md](./spec.md)を参照
+[spec.md](./docs/spec.md)を参照
