@@ -6,7 +6,7 @@ import react from '@vitejs/plugin-react'
 export default defineConfig({
   plugins: [react()],
   server: {
-    // 開発環境用プロキシ設定（VITE_BACKEND_API_URL未設定時に使用）
+    // Proxy configuration for local development environment
     proxy: {
       '/token': 'http://localhost:8000',
       '/me': 'http://localhost:8000',

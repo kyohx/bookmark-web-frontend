@@ -1,6 +1,5 @@
-// 環境変数からAPI URLを取得。未設定の場合は空文字列（Viteプロキシ使用）
+// Get API base URL from environment variable. Uses empty string (Vite proxy) if not set.
 export const API_BASE = import.meta.env.VITE_BACKEND_API_URL || '';
-
 
 export interface User {
     name: string;
