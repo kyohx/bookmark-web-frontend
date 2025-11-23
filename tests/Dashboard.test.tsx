@@ -148,6 +148,107 @@ describe('Dashboard', () => {
         });
     });
 
+    it('returns to add modal when canceling save confirmation', async () => {
+        render(
+            <BrowserRouter>
+                <Dashboard />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('Example Site')).toBeInTheDocument();
+        });
+
+        // Click Add Bookmark button
+        const addButton = screen.getByText('Add Bookmark');
+        fireEvent.click(addButton);
+
+        // Wait for modal to open
+        await waitFor(() => {
+            expect(screen.getByLabelText('URL')).toBeInTheDocument();
+        });
+
+        // Fill in the form
+        const urlInput = screen.getByLabelText('URL');
+        const memoInput = screen.getByLabelText('Memo');
+        fireEvent.change(urlInput, { target: { value: 'https://new.com' } });
+        fireEvent.change(memoInput, { target: { value: 'New Site' } });
+
+        // Click Save to show confirmation
+        const saveButton = screen.getByText('Save');
+        fireEvent.click(saveButton);
+
+        // Wait for confirmation modal by finding the Add button
+        await screen.findByRole('button', { name: 'Add' });
+        expect(screen.getByText('Do you want to add this bookmark?')).toBeInTheDocument();
+
+        // Click Cancel on confirmation
+        const cancelButtons = screen.getAllByText('Cancel');
+        const confirmCancelButton = cancelButtons[cancelButtons.length - 1]; // Get the last Cancel button (from confirm modal)
+        fireEvent.click(confirmCancelButton);
+
+        // Should return to add modal, not close everything
+        await waitFor(() => {
+            expect(screen.getByLabelText('URL')).toBeInTheDocument();
+            expect(screen.getByDisplayValue('https://new.com')).toBeInTheDocument();
+            expect(screen.getByDisplayValue('New Site')).toBeInTheDocument();
+        });
+
+        // Confirmation modal should be closed
+        expect(screen.queryByText('Do you want to add this bookmark?')).not.toBeInTheDocument();
+    });
+
+    it('returns to edit modal when canceling save confirmation', async () => {
+        vi.mocked(api.getBookmark).mockResolvedValue(mockBookmarks[0]);
+
+        render(
+            <BrowserRouter>
+                <Dashboard />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('Example Site')).toBeInTheDocument();
+        });
+
+        // Click edit button on first card
+        const editButtons = screen.getAllByTitle('Edit');
+        fireEvent.click(editButtons[0]);
+
+        // Wait for modal to open and populate
+        await waitFor(() => {
+            expect(screen.getByDisplayValue('https://example.com')).toBeInTheDocument();
+        });
+
+        // Change memo
+        const memoInput = screen.getByLabelText('Memo');
+        fireEvent.change(memoInput, { target: { value: 'Updated Memo' } });
+
+        // Click save to show confirmation
+        const saveButton = screen.getByText('Save');
+        fireEvent.click(saveButton);
+
+        // Wait for confirmation modal by finding the Save Changes button
+        await screen.findByRole('button', { name: 'Save Changes' });
+        expect(screen.getByText('Do you want to save the changes to this bookmark?')).toBeInTheDocument();
+
+        // Click Cancel on confirmation
+        const cancelButtons = screen.getAllByText('Cancel');
+        const confirmCancelButton = cancelButtons[cancelButtons.length - 1]; // Get the last Cancel button (from confirm modal)
+        fireEvent.click(confirmCancelButton);
+
+        // Should return to edit modal, not close everything
+        await waitFor(() => {
+            expect(screen.getByLabelText('URL')).toBeInTheDocument();
+            expect(screen.getByDisplayValue('https://example.com')).toBeInTheDocument();
+            expect(screen.getByDisplayValue('Updated Memo')).toBeInTheDocument();
+        });
+
+        // Confirmation modal should be closed
+        expect(screen.queryByText('Do you want to save the changes to this bookmark?')).not.toBeInTheDocument();
+    });
+
+
     it('hides edit/delete buttons for read-only users', async () => {
         vi.mocked(api.getMe).mockResolvedValue({ name: 'readonly', authority: 1 }); // READ_ONLY authority
 
