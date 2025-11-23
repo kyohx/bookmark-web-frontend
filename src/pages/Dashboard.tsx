@@ -137,7 +137,7 @@ export const Dashboard: React.FC = () => {
 
     const cancelSave = () => {
         setConfirmSave(null);
-        setIsModalOpen(false);
+        // Don't close the main modal, keep it open so user can review/edit
     };
 
 

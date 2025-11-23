@@ -30,7 +30,7 @@ flowchart TD
     AddModal -->|"Saveボタン<br/>クリック"| AddConfirm["追加確認モーダル"]
     AddModal -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2["ダッシュボード"]
     AddConfirm -->|"Addボタン<br/>クリック"| Dashboard2
-    AddConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2
+    AddConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| AddModal
     
     classDef screenStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
     classDef modalStyle fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#fff
@@ -51,7 +51,7 @@ flowchart TD
     EditModal -->|"Saveボタン<br/>クリック"| EditConfirm["編集確認モーダル"]
     EditModal -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2["ダッシュボード"]
     EditConfirm -->|"Save Changesボタン<br/>クリック"| Dashboard2
-    EditConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| Dashboard2
+    EditConfirm -->|"Cancelボタン、<br/>✕ボタン、または<br/>背景クリック"| EditModal
     
     classDef screenStyle fill:#6366f1,stroke:#4f46e5,stroke-width:3px,color:#fff
     classDef modalStyle fill:#1e293b,stroke:#6366f1,stroke-width:2px,color:#fff
