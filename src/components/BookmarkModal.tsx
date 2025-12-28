@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Bookmark } from '../api/client';
 import { X } from 'lucide-react';
-import { validateBookmarkForAdd, validateBookmarkForUpdate, type ValidationError } from '../utils/validation';
+import { validateBookmarkForAdd, validateBookmarkForUpdate, parseTags, type ValidationError } from '../utils/validation';
 
 interface BookmarkModalProps {
     isOpen: boolean;
@@ -39,7 +39,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
-        const tagList = tags.split(',').map(t => t.trim()).filter(t => t);
+        const tagList = parseTags(tags);
 
         // Validate based on whether it's add or update
         const validationResult = initialData
@@ -139,7 +139,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                             value={url}
                             onChange={(e) => setUrl(e.target.value)}
                             placeholder="https://example.com"
-                            required
+
                             disabled={!!initialData}
                             maxLength={400}
                             style={{
@@ -183,7 +183,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                         />
                         {getFieldError('tags') && <span style={errorStyle}>{getFieldError('tags')}</span>}
                         <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
-                            {tags.split(',').map(t => t.trim()).filter(t => t).length}/10 tags
+                            {parseTags(tags).length}/10 tags
                         </span>
                     </div>
 

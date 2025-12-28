@@ -4,13 +4,18 @@ import {
     validateMemo,
     validateTags,
     validateBookmarkForAdd,
-    validateBookmarkForUpdate
+    validateBookmarkForUpdate,
+    parseTags
 } from '../src/utils/validation';
 
 describe('validateUrl', () => {
     it('returns error for empty URL', () => {
         expect(validateUrl('')).toEqual({ field: 'url', message: 'URLは必須です' });
-        expect(validateUrl('   ')).toEqual({ field: 'url', message: 'URLは必須です' });
+    });
+
+    it('returns error for whitespace-only URL', () => {
+        // URL validation no longer trims - whitespace-only becomes invalid URL format
+        expect(validateUrl('   ')).toEqual({ field: 'url', message: '有効なURL形式で入力してください' });
     });
 
     it('returns error for URL exceeding max length', () => {
@@ -34,6 +39,10 @@ describe('validateUrl', () => {
 describe('validateMemo', () => {
     it('returns error for empty memo when required', () => {
         expect(validateMemo('', true)).toEqual({ field: 'memo', message: 'メモは必須です' });
+    });
+
+    it('returns error for whitespace-only memo when required', () => {
+        expect(validateMemo('   ', true)).toEqual({ field: 'memo', message: 'メモは必須です' });
     });
 
     it('returns null for empty memo when not required', () => {
@@ -122,5 +131,25 @@ describe('validateBookmarkForUpdate', () => {
         const result = validateBookmarkForUpdate('memo', []);
         expect(result.isValid).toBe(false);
         expect(result.errors[0].field).toBe('tags');
+    });
+});
+
+describe('parseTags', () => {
+    it('parses comma separated string correctly', () => {
+        expect(parseTags('a,b,c')).toEqual(['a', 'b', 'c']);
+    });
+
+    it('trims whitespace', () => {
+        expect(parseTags(' a , b , c ')).toEqual(['a', 'b', 'c']);
+    });
+
+    it('ignores empty items', () => {
+        expect(parseTags('a,,b, ,c')).toEqual(['a', 'b', 'c']);
+        expect(parseTags(',,')).toEqual([]);
+    });
+
+    it('handles empty input', () => {
+        expect(parseTags('')).toEqual([]);
+        expect(parseTags('   ')).toEqual([]);
     });
 });
