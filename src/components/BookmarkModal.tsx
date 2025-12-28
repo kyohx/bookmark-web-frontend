@@ -77,8 +77,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
     };
 
     const inputErrorStyle = {
-        borderColor: 'var(--color-error)',
-        boxShadow: '0 0 0 1px var(--color-error)'
+        borderColor: 'var(--color-error)'
     };
 
     return (
@@ -116,11 +115,10 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                     {initialData ? 'Edit Bookmark' : 'Add Bookmark'}
                 </h2>
 
-                <form onSubmit={handleSubmit} className="flex flex-col gap-md">
+                <form onSubmit={handleSubmit} className="flex flex-col gap-md" noValidate>
                     {errors.length > 0 && (
                         <div
                             role="alert"
-                            aria-live="polite"
                             style={{
                                 backgroundColor: 'color-mix(in srgb, var(--color-error) 10%, transparent)',
                                 border: '1px solid var(--color-error)',
@@ -145,7 +143,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                         </label>
                         <input
                             id="bookmark-url"
-                            type="text"
+                            type="url"
                             value={url}
                             onChange={(e) => {
                                 setUrl(e.target.value);
@@ -209,7 +207,8 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                                 clearFieldError('tags');
                             }}
                             placeholder="tech, news, blog"
-                            maxLength={1000}
+                            // 10 tags * 100 characters each + 9 commas as separators = 1009
+                            maxLength={1009}
                             aria-invalid={!!getFieldError('tags')}
                             aria-describedby={getFieldError('tags') ? "error-tags" : undefined}
                             style={getFieldError('tags') ? inputErrorStyle : {}}

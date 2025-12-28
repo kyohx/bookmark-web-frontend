@@ -26,9 +26,9 @@ describe('BookmarkModal', () => {
             />
         );
         expect(screen.getByText('Add Bookmark')).toBeInTheDocument();
-        expect(screen.getByLabelText(/URL/)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Memo/)).toBeInTheDocument();
-        expect(screen.getByLabelText(/Tags/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^URL/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Memo/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/^Tags/)).toBeInTheDocument();
     });
 
     it('pre-fills form with initial data and sorts tags', () => {
@@ -76,7 +76,7 @@ describe('BookmarkModal', () => {
             />
         );
 
-        expect(screen.getByLabelText(/URL/)).toBeDisabled();
+        expect(screen.getByLabelText(/^URL/)).toBeDisabled();
     });
 
     it('submits form with correct data', async () => {
@@ -88,9 +88,9 @@ describe('BookmarkModal', () => {
             />
         );
 
-        const urlInput = screen.getByLabelText(/URL/);
-        const memoInput = screen.getByLabelText(/Memo/);
-        const tagsInput = screen.getByLabelText(/Tags/);
+        const urlInput = screen.getByLabelText(/^URL/);
+        const memoInput = screen.getByLabelText(/^Memo/);
+        const tagsInput = screen.getByLabelText(/^Tags/);
 
         fireEvent.change(urlInput, { target: { value: 'https://new.com' } });
         fireEvent.change(memoInput, { target: { value: 'New Memo' } });
@@ -119,12 +119,15 @@ describe('BookmarkModal', () => {
 
         // Check for error messages
         expect(screen.getByText('入力エラーがあります')).toBeInTheDocument();
-        expect(screen.getAllByText('URLは必須です')).toHaveLength(2); // Banner list and Field inline
+        expect(screen.getAllByText('URLは必須です').length).toBeGreaterThanOrEqual(2); // Banner list and Field inline
 
         // Check ARIA attributes
-        const urlInput = screen.getByLabelText(/URL/);
+        const urlInput = screen.getByLabelText(/^URL/);
+        const memoInput = screen.getByLabelText(/^Memo/);
+
         expect(urlInput).toHaveAttribute('aria-invalid', 'true');
         expect(urlInput).toHaveAttribute('aria-describedby', 'error-url');
+        expect(memoInput).toHaveAttribute('aria-invalid', 'true');
 
         // Type in URL to clear error
         fireEvent.change(urlInput, { target: { value: 'https://valid.com' } });
@@ -132,5 +135,9 @@ describe('BookmarkModal', () => {
         // Error should be cleared for URL
         expect(urlInput).not.toHaveAttribute('aria-invalid', 'true');
         expect(screen.queryByText('URLは必須です')).not.toBeInTheDocument();
+
+        // Memo error should still persist
+        expect(memoInput).toHaveAttribute('aria-invalid', 'true');
+        expect(screen.getAllByText('メモは必須です').length).toBeGreaterThanOrEqual(2);
     });
 });

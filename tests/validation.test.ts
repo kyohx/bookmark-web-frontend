@@ -152,4 +152,8 @@ describe('parseTags', () => {
         expect(parseTags('')).toEqual([]);
         expect(parseTags('   ')).toEqual([]);
     });
+    it('removes duplicates', () => {
+        expect(parseTags('a, b, a, c, b')).toEqual(['a', 'b', 'c']);
+        expect(parseTags('tag, tag, tag')).toEqual(['tag']);
+    });
 });

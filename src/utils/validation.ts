@@ -22,9 +22,11 @@ const TAGS_MAX_COUNT = 10;
 /**
  * Parse tags from comma-separated string
  * Shared utility to ensure consistent tag parsing across UI and validation
+ * Automatically removes duplicates
  */
 export function parseTags(tagsInput: string): string[] {
-    return tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    const tags = tagsInput.split(',').map(t => t.trim()).filter(t => t.length > 0);
+    return Array.from(new Set(tags));
 }
 
 /**
@@ -70,7 +72,7 @@ export function validateMemo(memo: string, required: boolean = false): Validatio
 /**
  * Validate Tags field
  */
-export function validateTags(tags: string[], required: boolean = false): ValidationError | null {
+export function validateTags(tags: string[], required: boolean = true): ValidationError | null {
     if (required && tags.length === 0) {
         return { field: 'tags', message: 'タグは1つ以上必要です' };
     }
