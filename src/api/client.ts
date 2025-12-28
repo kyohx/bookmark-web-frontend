@@ -21,10 +21,14 @@ export function canEdit(authority: number): boolean {
 export interface Bookmark {
     hashed_id: string;
     url: string;
-    memo?: string;
-    tags?: string[];
+    memo: string;
+    tags: string[];
     created_at: string;
     updated_at: string;
+}
+
+export interface AddBookmarkResponse {
+    hashed_id: string;
 }
 
 export interface LoginResponse {
@@ -117,8 +121,8 @@ class ApiClient {
         return data.bookmark;
     }
 
-    async addBookmark(url: string, memo: string, tags: string[]): Promise<Bookmark> {
-        return this.request<Bookmark>('/bookmarks', {
+    async addBookmark(url: string, memo: string, tags: string[]): Promise<AddBookmarkResponse> {
+        return this.request<AddBookmarkResponse>('/bookmarks', {
             method: 'POST',
             body: JSON.stringify({ url, memo, tags }),
         });
