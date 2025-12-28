@@ -22,7 +22,7 @@ export const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onEdit, on
                     whiteSpace: 'nowrap',
                     maxWidth: '80%'
                 }}>
-                    {bookmark.memo || 'No Title'}
+                    {bookmark.memo}
                 </h3>
                 {canEdit && (
                     <div className="flex gap-sm">
@@ -73,7 +73,7 @@ export const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onEdit, on
             </a>
 
             <div style={{ marginTop: 'auto', display: 'flex', flexWrap: 'wrap', gap: '8px' }}>
-                {(bookmark.tags || []).map((tag, index) => (
+                {bookmark.tags.map((tag, index) => (
                     <span key={index} style={{
                         backgroundColor: 'rgba(99, 102, 241, 0.1)',
                         color: 'var(--color-primary)',
