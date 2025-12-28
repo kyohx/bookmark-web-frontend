@@ -50,6 +50,11 @@ export function validateUrl(url: string): ValidationError | null {
  * Validate Memo field
  * Note: Uses trimmed value for emptiness check, raw length for max length check
  * to prevent whitespace-only submissions while allowing trailing spaces
+ * 
+ * Note regarding OpenAPI spec:
+ * The spec lists memo as required/optional but doesn't specify minLength.
+ * The client intentionally enforces stricter validation (non-empty/non-whitespace)
+ * to ensure meaningful data is saved.
  */
 export function validateMemo(memo: string, required: boolean = false): ValidationError | null {
     const trimmedMemo = memo.trim();
@@ -127,4 +132,3 @@ export function validateBookmarkForUpdate(memo: string, tags: string[]): Validat
         errors
     };
 }
-

@@ -36,6 +36,12 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
         return errors.find(e => e.field === field)?.message;
     };
 
+    const clearFieldError = (field: string) => {
+        if (errors.some(e => e.field === field)) {
+            setErrors(errors.filter(e => e.field !== field));
+        }
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
 
@@ -112,13 +118,17 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-md">
                     {errors.length > 0 && (
-                        <div style={{
-                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
-                            border: '1px solid var(--color-error)',
-                            borderRadius: 'var(--radius-md)',
-                            padding: 'var(--spacing-md)',
-                            marginBottom: 'var(--spacing-sm)'
-                        }}>
+                        <div
+                            role="alert"
+                            aria-live="polite"
+                            style={{
+                                backgroundColor: 'color-mix(in srgb, var(--color-error) 10%, transparent)',
+                                border: '1px solid var(--color-error)',
+                                borderRadius: 'var(--radius-md)',
+                                padding: 'var(--spacing-md)',
+                                marginBottom: 'var(--spacing-sm)'
+                            }}
+                        >
                             <p style={{ color: 'var(--color-error)', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>
                                 入力エラーがあります
                             </p>
@@ -135,19 +145,27 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                         </label>
                         <input
                             id="bookmark-url"
-                            type="url"
+                            type="text"
                             value={url}
-                            onChange={(e) => setUrl(e.target.value)}
+                            onChange={(e) => {
+                                setUrl(e.target.value);
+                                clearFieldError('url');
+                            }}
                             placeholder="https://example.com"
-
                             disabled={!!initialData}
                             maxLength={400}
+                            aria-invalid={!!getFieldError('url')}
+                            aria-describedby={getFieldError('url') ? "error-url" : undefined}
                             style={{
                                 ...(initialData ? { backgroundColor: 'var(--color-background-alt)', cursor: 'not-allowed' } : {}),
                                 ...(getFieldError('url') ? inputErrorStyle : {})
                             }}
                         />
-                        {getFieldError('url') && <span style={errorStyle}>{getFieldError('url')}</span>}
+                        {getFieldError('url') && (
+                            <span id="error-url" style={errorStyle}>
+                                {getFieldError('url')}
+                            </span>
+                        )}
                     </div>
 
                     <div className="flex flex-col gap-sm">
@@ -158,12 +176,21 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                             id="bookmark-memo"
                             type="text"
                             value={memo}
-                            onChange={(e) => setMemo(e.target.value)}
+                            onChange={(e) => {
+                                setMemo(e.target.value);
+                                clearFieldError('memo');
+                            }}
                             placeholder="My favorite site"
                             maxLength={400}
+                            aria-invalid={!!getFieldError('memo')}
+                            aria-describedby={getFieldError('memo') ? "error-memo" : undefined}
                             style={getFieldError('memo') ? inputErrorStyle : {}}
                         />
-                        {getFieldError('memo') && <span style={errorStyle}>{getFieldError('memo')}</span>}
+                        {getFieldError('memo') && (
+                            <span id="error-memo" style={errorStyle}>
+                                {getFieldError('memo')}
+                            </span>
+                        )}
                         <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
                             {memo.length}/400
                         </span>
@@ -177,11 +204,21 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                             id="bookmark-tags"
                             type="text"
                             value={tags}
-                            onChange={(e) => setTags(e.target.value)}
+                            onChange={(e) => {
+                                setTags(e.target.value);
+                                clearFieldError('tags');
+                            }}
                             placeholder="tech, news, blog"
+                            maxLength={1000}
+                            aria-invalid={!!getFieldError('tags')}
+                            aria-describedby={getFieldError('tags') ? "error-tags" : undefined}
                             style={getFieldError('tags') ? inputErrorStyle : {}}
                         />
-                        {getFieldError('tags') && <span style={errorStyle}>{getFieldError('tags')}</span>}
+                        {getFieldError('tags') && (
+                            <span id="error-tags" style={errorStyle}>
+                                {getFieldError('tags')}
+                            </span>
+                        )}
                         <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
                             {parseTags(tags).length}/10 tags
                         </span>
@@ -200,4 +237,3 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
         </div>
     );
 };
-

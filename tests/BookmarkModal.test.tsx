@@ -103,4 +103,34 @@ describe('BookmarkModal', () => {
             expect(mockOnSubmit).toHaveBeenCalledWith('https://new.com', 'New Memo', ['tag1', 'tag2']);
         });
     });
+
+    it('shows and clears validation errors', async () => {
+        render(
+            <BookmarkModal
+                isOpen={true}
+                onClose={mockOnClose}
+                onSubmit={mockOnSubmit}
+            />
+        );
+
+        // Submit empty form
+        const saveButton = screen.getByRole('button', { name: 'Save' });
+        fireEvent.click(saveButton);
+
+        // Check for error messages
+        expect(screen.getByText('入力エラーがあります')).toBeInTheDocument();
+        expect(screen.getAllByText('URLは必須です')).toHaveLength(2); // Banner list and Field inline
+
+        // Check ARIA attributes
+        const urlInput = screen.getByLabelText(/URL/);
+        expect(urlInput).toHaveAttribute('aria-invalid', 'true');
+        expect(urlInput).toHaveAttribute('aria-describedby', 'error-url');
+
+        // Type in URL to clear error
+        fireEvent.change(urlInput, { target: { value: 'https://valid.com' } });
+
+        // Error should be cleared for URL
+        expect(urlInput).not.toHaveAttribute('aria-invalid', 'true');
+        expect(screen.queryByText('URLは必須です')).not.toBeInTheDocument();
+    });
 });
