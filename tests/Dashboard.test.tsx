@@ -128,7 +128,7 @@ describe('Dashboard', () => {
         });
 
         // Change memo
-        const memoInput = screen.getByLabelText('Memo');
+        const memoInput = screen.getByLabelText(/Memo/);
         fireEvent.change(memoInput, { target: { value: 'Updated Memo' } });
 
         // Click save
@@ -165,14 +165,16 @@ describe('Dashboard', () => {
 
         // Wait for modal to open
         await waitFor(() => {
-            expect(screen.getByLabelText('URL')).toBeInTheDocument();
+            expect(screen.getByLabelText(/URL/)).toBeInTheDocument();
         });
 
         // Fill in the form
-        const urlInput = screen.getByLabelText('URL');
-        const memoInput = screen.getByLabelText('Memo');
+        const urlInput = screen.getByLabelText(/URL/);
+        const memoInput = screen.getByLabelText(/Memo/);
+        const tagsInput = screen.getByLabelText(/Tags/);
         fireEvent.change(urlInput, { target: { value: 'https://new.com' } });
         fireEvent.change(memoInput, { target: { value: 'New Site' } });
+        fireEvent.change(tagsInput, { target: { value: 'test' } });
 
         // Click Save to show confirmation
         const saveButton = screen.getByText('Save');
@@ -189,7 +191,7 @@ describe('Dashboard', () => {
 
         // Should return to add modal, not close everything
         await waitFor(() => {
-            expect(screen.getByLabelText('URL')).toBeInTheDocument();
+            expect(screen.getByLabelText(/URL/)).toBeInTheDocument();
             expect(screen.getByDisplayValue('https://new.com')).toBeInTheDocument();
             expect(screen.getByDisplayValue('New Site')).toBeInTheDocument();
         });
@@ -221,7 +223,7 @@ describe('Dashboard', () => {
         });
 
         // Change memo
-        const memoInput = screen.getByLabelText('Memo');
+        const memoInput = screen.getByLabelText(/Memo/);
         fireEvent.change(memoInput, { target: { value: 'Updated Memo' } });
 
         // Click save to show confirmation
@@ -239,7 +241,7 @@ describe('Dashboard', () => {
 
         // Should return to edit modal, not close everything
         await waitFor(() => {
-            expect(screen.getByLabelText('URL')).toBeInTheDocument();
+            expect(screen.getByLabelText(/URL/)).toBeInTheDocument();
             expect(screen.getByDisplayValue('https://example.com')).toBeInTheDocument();
             expect(screen.getByDisplayValue('Updated Memo')).toBeInTheDocument();
         });

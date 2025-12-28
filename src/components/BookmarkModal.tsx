@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import type { Bookmark } from '../api/client';
 import { X } from 'lucide-react';
+import { validateBookmarkForAdd, validateBookmarkForUpdate, type ValidationError } from '../utils/validation';
 
 interface BookmarkModalProps {
     isOpen: boolean;
@@ -14,6 +15,7 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
     const [memo, setMemo] = useState('');
     const [tags, setTags] = useState('');
     const [loading, setLoading] = useState(false);
+    const [errors, setErrors] = useState<ValidationError[]>([]);
 
     useEffect(() => {
         if (initialData) {
@@ -25,15 +27,33 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
             setMemo('');
             setTags('');
         }
+        setErrors([]);
     }, [initialData, isOpen]);
 
     if (!isOpen) return null;
 
+    const getFieldError = (field: string): string | undefined => {
+        return errors.find(e => e.field === field)?.message;
+    };
+
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
+
+        const tagList = tags.split(',').map(t => t.trim()).filter(t => t);
+
+        // Validate based on whether it's add or update
+        const validationResult = initialData
+            ? validateBookmarkForUpdate(memo, tagList)
+            : validateBookmarkForAdd(url, memo, tagList);
+
+        if (!validationResult.isValid) {
+            setErrors(validationResult.errors);
+            return;
+        }
+
+        setErrors([]);
         setLoading(true);
         try {
-            const tagList = tags.split(',').map(t => t.trim()).filter(t => t);
             await onSubmit(url, memo, tagList);
             // Don't close here - let Dashboard handle closing after confirmation
         } catch (error) {
@@ -42,6 +62,17 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
         } finally {
             setLoading(false);
         }
+    };
+
+    const errorStyle = {
+        color: 'var(--color-error)',
+        fontSize: 'var(--font-size-sm)',
+        marginTop: '4px'
+    };
+
+    const inputErrorStyle = {
+        borderColor: 'var(--color-error)',
+        boxShadow: '0 0 0 1px var(--color-error)'
     };
 
     return (
@@ -80,8 +111,28 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                 </h2>
 
                 <form onSubmit={handleSubmit} className="flex flex-col gap-md">
+                    {errors.length > 0 && (
+                        <div style={{
+                            backgroundColor: 'rgba(239, 68, 68, 0.1)',
+                            border: '1px solid var(--color-error)',
+                            borderRadius: 'var(--radius-md)',
+                            padding: 'var(--spacing-md)',
+                            marginBottom: 'var(--spacing-sm)'
+                        }}>
+                            <p style={{ color: 'var(--color-error)', fontWeight: 600, marginBottom: 'var(--spacing-xs)' }}>
+                                入力エラーがあります
+                            </p>
+                            <ul style={{ color: 'var(--color-error)', fontSize: 'var(--font-size-sm)', paddingLeft: 'var(--spacing-md)', margin: 0 }}>
+                                {errors.map((err, idx) => (
+                                    <li key={idx}>{err.message}</li>
+                                ))}
+                            </ul>
+                        </div>
+                    )}
                     <div className="flex flex-col gap-sm">
-                        <label htmlFor="bookmark-url" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>URL</label>
+                        <label htmlFor="bookmark-url" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                            URL <span style={{ color: 'var(--color-error)' }}>*</span>
+                        </label>
                         <input
                             id="bookmark-url"
                             type="url"
@@ -90,30 +141,50 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                             placeholder="https://example.com"
                             required
                             disabled={!!initialData}
-                            style={initialData ? { backgroundColor: 'var(--color-background-alt)', cursor: 'not-allowed' } : {}}
+                            maxLength={400}
+                            style={{
+                                ...(initialData ? { backgroundColor: 'var(--color-background-alt)', cursor: 'not-allowed' } : {}),
+                                ...(getFieldError('url') ? inputErrorStyle : {})
+                            }}
                         />
+                        {getFieldError('url') && <span style={errorStyle}>{getFieldError('url')}</span>}
                     </div>
 
                     <div className="flex flex-col gap-sm">
-                        <label htmlFor="bookmark-memo" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>Memo</label>
+                        <label htmlFor="bookmark-memo" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                            Memo <span style={{ color: 'var(--color-error)' }}>*</span>
+                        </label>
                         <input
                             id="bookmark-memo"
                             type="text"
                             value={memo}
                             onChange={(e) => setMemo(e.target.value)}
                             placeholder="My favorite site"
+                            maxLength={400}
+                            style={getFieldError('memo') ? inputErrorStyle : {}}
                         />
+                        {getFieldError('memo') && <span style={errorStyle}>{getFieldError('memo')}</span>}
+                        <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                            {memo.length}/400
+                        </span>
                     </div>
 
                     <div className="flex flex-col gap-sm">
-                        <label htmlFor="bookmark-tags" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>Tags (comma separated)</label>
+                        <label htmlFor="bookmark-tags" style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                            Tags (comma separated) <span style={{ color: 'var(--color-error)' }}>*</span>
+                        </label>
                         <input
                             id="bookmark-tags"
                             type="text"
                             value={tags}
                             onChange={(e) => setTags(e.target.value)}
                             placeholder="tech, news, blog"
+                            style={getFieldError('tags') ? inputErrorStyle : {}}
                         />
+                        {getFieldError('tags') && <span style={errorStyle}>{getFieldError('tags')}</span>}
+                        <span style={{ fontSize: 'var(--font-size-sm)', color: 'var(--color-text-muted)' }}>
+                            {tags.split(',').map(t => t.trim()).filter(t => t).length}/10 tags
+                        </span>
                     </div>
 
                     <div className="flex gap-md mt-md" style={{ justifyContent: 'flex-end' }}>
@@ -129,3 +200,4 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
         </div>
     );
 };
+

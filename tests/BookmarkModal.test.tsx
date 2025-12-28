@@ -26,9 +26,9 @@ describe('BookmarkModal', () => {
             />
         );
         expect(screen.getByText('Add Bookmark')).toBeInTheDocument();
-        expect(screen.getByLabelText('URL')).toBeInTheDocument();
-        expect(screen.getByLabelText('Memo')).toBeInTheDocument();
-        expect(screen.getByLabelText('Tags (comma separated)')).toBeInTheDocument();
+        expect(screen.getByLabelText(/URL/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Memo/)).toBeInTheDocument();
+        expect(screen.getByLabelText(/Tags/)).toBeInTheDocument();
     });
 
     it('pre-fills form with initial data and sorts tags', () => {
@@ -76,7 +76,7 @@ describe('BookmarkModal', () => {
             />
         );
 
-        expect(screen.getByLabelText('URL')).toBeDisabled();
+        expect(screen.getByLabelText(/URL/)).toBeDisabled();
     });
 
     it('submits form with correct data', async () => {
@@ -88,9 +88,9 @@ describe('BookmarkModal', () => {
             />
         );
 
-        const urlInput = screen.getByLabelText('URL');
-        const memoInput = screen.getByLabelText('Memo');
-        const tagsInput = screen.getByLabelText('Tags (comma separated)');
+        const urlInput = screen.getByLabelText(/URL/);
+        const memoInput = screen.getByLabelText(/Memo/);
+        const tagsInput = screen.getByLabelText(/Tags/);
 
         fireEvent.change(urlInput, { target: { value: 'https://new.com' } });
         fireEvent.change(memoInput, { target: { value: 'New Memo' } });
