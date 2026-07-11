@@ -39,24 +39,80 @@ export interface LoginResponse {
 
 export type DeleteBookmarkResponse = Record<string, never>;
 
+const ACCESS_TOKEN_STORAGE_KEY = 'access_token';
+const REFRESH_TOKEN_STORAGE_KEY = 'refresh_token';
+
 class ApiClient {
-    private token: string | null = localStorage.getItem('access_token');
+    private token: string | null = localStorage.getItem(ACCESS_TOKEN_STORAGE_KEY);
+    private refreshToken: string | null = localStorage.getItem(REFRESH_TOKEN_STORAGE_KEY);
+    private refreshRequest: Promise<string> | null = null;
 
     setToken(token: string) {
         this.token = token;
-        localStorage.setItem('access_token', token);
+        localStorage.setItem(ACCESS_TOKEN_STORAGE_KEY, token);
     }
 
-    clearToken() {
+    private setRefreshToken(refreshToken: string) {
+        this.refreshToken = refreshToken;
+        localStorage.setItem(REFRESH_TOKEN_STORAGE_KEY, refreshToken);
+    }
+
+    private setAuthTokens(tokens: Pick<LoginResponse, 'access_token' | 'refresh_token'>) {
+        this.setToken(tokens.access_token);
+        this.setRefreshToken(tokens.refresh_token);
+    }
+
+    clearAuthTokens() {
         this.token = null;
-        localStorage.removeItem('access_token');
+        this.refreshToken = null;
+        localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
+        localStorage.removeItem(REFRESH_TOKEN_STORAGE_KEY);
     }
 
     getToken() {
         return this.token;
     }
 
-    async request<T>(endpoint: string, options: RequestInit = {}): Promise<T> {
+    private redirectToLogin() {
+        window.location.href = '/login';
+    }
+
+    private async refreshAccessToken(): Promise<string> {
+        if (this.refreshRequest) {
+            return this.refreshRequest;
+        }
+
+        if (!this.refreshToken) {
+            throw new Error('Missing refresh token');
+        }
+
+        this.refreshRequest = (async () => {
+            const response = await fetch(`${API_BASE}/refresh`, {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ refresh_token: this.refreshToken }),
+            });
+
+            if (!response.ok) {
+                const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
+                throw new Error(error.detail || 'Refresh failed');
+            }
+
+            const data: LoginResponse = await response.json();
+            this.setAuthTokens(data);
+            return data.access_token;
+        })();
+
+        try {
+            return await this.refreshRequest;
+        } finally {
+            this.refreshRequest = null;
+        }
+    }
+
+    async request<T>(endpoint: string, options: RequestInit = {}, retryOnUnauthorized = true): Promise<T> {
         const headers = new Headers(options.headers);
 
         if (this.token) {
@@ -74,8 +130,18 @@ class ApiClient {
 
         if (!response.ok) {
             if (response.status === 401) {
-                this.clearToken();
-                window.location.href = '/login';
+                if (retryOnUnauthorized && endpoint !== '/refresh' && this.refreshToken) {
+                    try {
+                        await this.refreshAccessToken();
+                        return this.request<T>(endpoint, options, false);
+                    } catch {
+                        this.clearAuthTokens();
+                        this.redirectToLogin();
+                        throw new Error('Unauthorized');
+                    }
+                }
+                this.clearAuthTokens();
+                this.redirectToLogin();
                 throw new Error('Unauthorized');
             }
             const error = await response.json().catch(() => ({ detail: 'Unknown error' }));
@@ -102,8 +168,8 @@ class ApiClient {
             throw new Error('Login failed');
         }
 
-        const data = await response.json();
-        this.setToken(data.access_token);
+        const data: LoginResponse = await response.json();
+        this.setAuthTokens(data);
         return data;
     }
 
