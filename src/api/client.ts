@@ -33,8 +33,11 @@ export interface AddBookmarkResponse {
 
 export interface LoginResponse {
     access_token: string;
+    refresh_token: string;
     token_type: string;
 }
+
+export type DeleteBookmarkResponse = Record<string, never>;
 
 class ApiClient {
     private token: string | null = localStorage.getItem('access_token');
@@ -108,9 +111,15 @@ class ApiClient {
         return this.request<User>('/me');
     }
 
-    async getBookmarks(page = 1, size = 10, tag?: string): Promise<{ items: Bookmark[] }> {
+    async getBookmarks(page = 1, size = 10, tag?: string | string[] | null): Promise<{ items: Bookmark[] }> {
         const params = new URLSearchParams({ page: page.toString(), size: size.toString() });
-        if (tag) params.append('tag', tag);
+        if (Array.isArray(tag)) {
+            for (const value of tag) {
+                params.append('tag', value);
+            }
+        } else if (tag) {
+            params.append('tag', tag);
+        }
         // API returns { bookmarks: Bookmark[] } and no total count
         const data = await this.request<{ bookmarks: Bookmark[] }>(`/bookmarks?${params.toString()}`);
         return { items: data.bookmarks };
@@ -145,8 +154,8 @@ class ApiClient {
         return data.updated_bookmark;
     }
 
-    async deleteBookmark(hashed_id: string): Promise<void> {
-        return this.request<void>(`/bookmarks/${hashed_id}`, {
+    async deleteBookmark(hashed_id: string): Promise<DeleteBookmarkResponse> {
+        return this.request<DeleteBookmarkResponse>(`/bookmarks/${hashed_id}`, {
             method: 'DELETE',
         });
     }
