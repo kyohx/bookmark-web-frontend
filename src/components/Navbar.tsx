@@ -7,7 +7,7 @@ export const Navbar: React.FC = () => {
     const navigate = useNavigate();
 
     const handleLogout = () => {
-        api.clearToken();
+        api.clearAuthTokens();
         navigate('/login');
     };
 

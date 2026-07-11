@@ -62,7 +62,7 @@ class ApiClient {
         this.setRefreshToken(tokens.refresh_token);
     }
 
-    clearToken() {
+    clearAuthTokens() {
         this.token = null;
         this.refreshToken = null;
         localStorage.removeItem(ACCESS_TOKEN_STORAGE_KEY);
@@ -135,12 +135,12 @@ class ApiClient {
                         await this.refreshAccessToken();
                         return this.request<T>(endpoint, options, false);
                     } catch {
-                        this.clearToken();
+                        this.clearAuthTokens();
                         this.redirectToLogin();
                         throw new Error('Unauthorized');
                     }
                 }
-                this.clearToken();
+                this.clearAuthTokens();
                 this.redirectToLogin();
                 throw new Error('Unauthorized');
             }
