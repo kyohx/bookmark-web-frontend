@@ -3,7 +3,7 @@
   "info": {
     "title": "Bookmark API",
     "description": "API for bookmarking web page URL",
-    "version": "0.6.0.251228"
+    "version": "0.10.0.260314"
   },
   "paths": {
     "/token": {
@@ -34,6 +34,226 @@
                 }
               }
             }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/refresh": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Refresh Token",
+        "description": "リフレッシュトークンからアクセストークンを再発行する",
+        "operationId": "refresh_token_refresh_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForRefreshToken"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "200": {
+            "description": "Successful Response",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ResponseForRefreshToken"
+                }
+              }
+            }
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/blacklist/jti": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Add Blacklist Jti",
+        "description": "jtiをリフレッシュトークンブラックリストに追加する(管理者のみ)",
+        "operationId": "add_blacklist_jti_auth_blacklist_jti_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForBlacklistAddJti"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/blacklist/family": {
+      "post": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Add Blacklist Family",
+        "description": "user+familyをリフレッシュトークンブラックリストに追加する(管理者のみ)",
+        "operationId": "add_blacklist_family_auth_blacklist_family_post",
+        "requestBody": {
+          "content": {
+            "application/json": {
+              "schema": {
+                "$ref": "#/components/schemas/RequestForBlacklistAddFamily"
+              }
+            }
+          },
+          "required": true
+        },
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ]
+      }
+    },
+    "/auth/blacklist/jti/{jti}": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Blacklist Jti",
+        "description": "jtiのリフレッシュトークンブラックリストを削除する(管理者のみ)",
+        "operationId": "delete_blacklist_jti_auth_blacklist_jti__jti__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "jti",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Jti"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
+          },
+          "422": {
+            "description": "Validation Error",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/HTTPValidationError"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/auth/blacklist/family/{user}/{family}": {
+      "delete": {
+        "tags": [
+          "auth"
+        ],
+        "summary": "Delete Blacklist Family",
+        "description": "user+familyのリフレッシュトークンブラックリストを削除する(管理者のみ)",
+        "operationId": "delete_blacklist_family_auth_blacklist_family__user___family__delete",
+        "security": [
+          {
+            "OAuth2PasswordBearer": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "user",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 32,
+              "pattern": "^[a-zA-Z0-9_]+$",
+              "title": "User"
+            }
+          },
+          {
+            "name": "family",
+            "in": "path",
+            "required": true,
+            "schema": {
+              "type": "string",
+              "minLength": 1,
+              "maxLength": 128,
+              "title": "Family"
+            }
+          }
+        ],
+        "responses": {
+          "204": {
+            "description": "Successful Response"
           },
           "422": {
             "description": "Validation Error",
@@ -825,6 +1045,88 @@
           }
         ]
       },
+      "RequestForBlacklistAddFamily": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "user": {
+            "type": "string",
+            "maxLength": 32,
+            "minLength": 1,
+            "pattern": "^[a-zA-Z0-9_]+$",
+            "title": "User"
+          },
+          "family": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Family"
+          }
+        },
+        "type": "object",
+        "required": [
+          "user",
+          "family"
+        ],
+        "title": "RequestForBlacklistAddFamily"
+      },
+      "RequestForBlacklistAddJti": {
+        "properties": {
+          "reason": {
+            "anyOf": [
+              {
+                "type": "string",
+                "maxLength": 1000
+              },
+              {
+                "type": "null"
+              }
+            ],
+            "title": "Reason"
+          },
+          "jti": {
+            "type": "string",
+            "maxLength": 128,
+            "minLength": 1,
+            "title": "Jti"
+          }
+        },
+        "type": "object",
+        "required": [
+          "jti"
+        ],
+        "title": "RequestForBlacklistAddJti"
+      },
+      "RequestForRefreshToken": {
+        "properties": {
+          "refresh_token": {
+            "type": "string",
+            "maxLength": 2048,
+            "minLength": 1,
+            "title": "Refresh Token"
+          }
+        },
+        "type": "object",
+        "required": [
+          "refresh_token"
+        ],
+        "title": "RequestForRefreshToken",
+        "examples": [
+          {
+            "refresh_token": "YYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYYYYY"
+          }
+        ]
+      },
       "RequestForUpdateBookmark": {
         "properties": {
           "memo": {
@@ -1113,7 +1415,7 @@
         "title": "ResponseForGetVersion",
         "examples": [
           {
-            "version": "0.6.0.251228"
+            "version": "0.10.0.260314"
           }
         ]
       },
@@ -1123,6 +1425,10 @@
             "type": "string",
             "title": "Access Token"
           },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
           "token_type": {
             "type": "string",
             "title": "Token Type"
@@ -1131,12 +1437,44 @@
         "type": "object",
         "required": [
           "access_token",
+          "refresh_token",
           "token_type"
         ],
         "title": "ResponseForLogin",
         "examples": [
           {
             "access_token": "XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX",
+            "refresh_token": "YYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYYYYY",
+            "token_type": "bearer"
+          }
+        ]
+      },
+      "ResponseForRefreshToken": {
+        "properties": {
+          "access_token": {
+            "type": "string",
+            "title": "Access Token"
+          },
+          "refresh_token": {
+            "type": "string",
+            "title": "Refresh Token"
+          },
+          "token_type": {
+            "type": "string",
+            "title": "Token Type"
+          }
+        },
+        "type": "object",
+        "required": [
+          "access_token",
+          "refresh_token",
+          "token_type"
+        ],
+        "title": "ResponseForRefreshToken",
+        "examples": [
+          {
+            "access_token": "XXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXXXXXXX.XXXXXXXXXXXXXXXX",
+            "refresh_token": "YYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYY.YYYYYYYYYYYYYYYYYYYY",
             "token_type": "bearer"
           }
         ]
@@ -1237,6 +1575,13 @@
           "type": {
             "type": "string",
             "title": "Error Type"
+          },
+          "input": {
+            "title": "Input"
+          },
+          "ctx": {
+            "type": "object",
+            "title": "Context"
           }
         },
         "type": "object",

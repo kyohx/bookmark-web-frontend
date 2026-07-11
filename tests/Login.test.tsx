@@ -35,7 +35,11 @@ describe('LoginPage', () => {
     });
 
     it('handles successful login', async () => {
-        vi.mocked(api.login).mockResolvedValue({ access_token: 'fake-token', token_type: 'bearer' });
+        vi.mocked(api.login).mockResolvedValue({
+            access_token: 'fake-token',
+            refresh_token: 'fake-refresh-token',
+            token_type: 'bearer',
+        });
 
         render(
             <BrowserRouter>
