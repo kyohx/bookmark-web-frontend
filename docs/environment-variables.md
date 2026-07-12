@@ -83,6 +83,8 @@ VITE_DEV_PROXY_TARGET=http://api:8000
 VITE_DEV_ALLOWED_HOSTS=frontend,localhost,127.0.0.1
 ```
 
+E2E 用 Docker イメージでは `.env.local` などのローカル専用ファイルを build context に含めないため、手元の設定に引っ張られず compose 側の値が使われます。
+
 プロキシ設定により、`http://localhost:5173/bookmarks`へのリクエストは自動的に`http://localhost:8000/bookmarks`に転送されます。
 
 ### 開発環境（プロキシを使用しない）

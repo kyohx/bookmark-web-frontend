@@ -59,17 +59,6 @@ npm run dev
 
 ブラウザで `http://localhost:5173` にアクセス
 
-Docker Compose でフロントエンドと API 一式を起動する場合:
-
-```bash
-docker compose -f compose.e2e.yaml up --build frontend
-```
-
-この構成では以下が起動します。
-
-- フロントエンド: `http://localhost:5173`
-- API: `http://localhost:8000`
-
 ### ビルド
 
 プロダクション用にビルドする場合:
@@ -101,6 +90,7 @@ npm test
 フロントエンド・API・DB・Redis・Playwright をまとめて Docker Compose で起動して実行します。
 
 前提として sibling ディレクトリに API リポジトリ `../bookmark-sample` が存在する必要があります。
+この compose は E2E 実行専用で、ホスト側ポートは公開しません。
 
 ```bash
 npm run test:e2e:docker

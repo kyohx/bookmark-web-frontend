@@ -2,6 +2,8 @@ node_modules
 dist
 playwright-report
 test-results
+.env.local
+*.local
 .git
 .github
 .DS_Store
