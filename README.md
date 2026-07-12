@@ -99,7 +99,7 @@ npm run test:e2e:docker
 テスト実行後に停止済みコンテナとボリュームも含めて片付ける場合:
 
 ```bash
-docker compose -f compose.e2e.yaml down -v
+npm run test:e2e:docker:down
 ```
 
 ### Lint
