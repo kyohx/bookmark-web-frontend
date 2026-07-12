@@ -20,6 +20,7 @@
 - **Routing**: React Router DOM
 - **Icons**: Lucide React
 - **Testing**: Vitest + React Testing Library
+- **E2E Testing**: Playwright
 
 ## ディレクトリ構造
 
@@ -58,6 +59,17 @@ npm run dev
 
 ブラウザで `http://localhost:5173` にアクセス
 
+Docker Compose でフロントエンドと API 一式を起動する場合:
+
+```bash
+docker compose -f compose.e2e.yaml up --build frontend
+```
+
+この構成では以下が起動します。
+
+- フロントエンド: `http://localhost:5173`
+- API: `http://localhost:8000`
+
 ### ビルド
 
 プロダクション用にビルドする場合:
@@ -82,6 +94,22 @@ npm run preview
 
 ```bash
 npm test
+```
+
+### E2Eテストの実行
+
+フロントエンド・API・DB・Redis・Playwright をまとめて Docker Compose で起動して実行します。
+
+前提として sibling ディレクトリに API リポジトリ `../bookmark-sample` が存在する必要があります。
+
+```bash
+npm run test:e2e:docker
+```
+
+テスト実行後に停止済みコンテナとボリュームも含めて片付ける場合:
+
+```bash
+docker compose -f compose.e2e.yaml down -v
 ```
 
 ### Lint

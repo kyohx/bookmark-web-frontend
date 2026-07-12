@@ -6,6 +6,9 @@ import { BookmarkModal } from '../components/BookmarkModal';
 import { ConfirmModal } from '../components/ConfirmModal';
 import { Plus, ChevronLeft, ChevronRight, Search } from 'lucide-react';
 
+const BOOKMARK_FETCH_RETRY_DELAY_MS = 150;
+const BOOKMARK_FETCH_MAX_ATTEMPTS = 3;
+
 export const Dashboard: React.FC = () => {
     const [bookmarks, setBookmarks] = useState<Bookmark[]>([]);
     const [page, setPage] = useState(1);
@@ -32,15 +35,27 @@ export const Dashboard: React.FC = () => {
     const fetchBookmarks = useCallback(async () => {
         setLoading(true);
         try {
-            const data = await api.getBookmarks(page, pageSize, tagFilter || undefined);
-            // If no items returned and we're not on page 1, go back to previous page
-            if (data.items.length === 0 && page > 1) {
-                setPage(p => p - 1);
-            } else {
-                setBookmarks(data.items);
+            let lastError: unknown;
+
+            for (let attempt = 0; attempt < BOOKMARK_FETCH_MAX_ATTEMPTS; attempt += 1) {
+                try {
+                    const data = await api.getBookmarks(page, pageSize, tagFilter || undefined);
+                    // If no items returned and we're not on page 1, go back to previous page
+                    if (data.items.length === 0 && page > 1) {
+                        setPage(p => p - 1);
+                    } else {
+                        setBookmarks(data.items);
+                    }
+                    return;
+                } catch (error) {
+                    lastError = error;
+                    if (attempt < BOOKMARK_FETCH_MAX_ATTEMPTS - 1) {
+                        await new Promise((resolve) => setTimeout(resolve, BOOKMARK_FETCH_RETRY_DELAY_MS));
+                    }
+                }
             }
-        } catch (error) {
-            console.error('Failed to fetch bookmarks', error);
+
+            console.error('Failed to fetch bookmarks', lastError);
         } finally {
             setLoading(false);
         }

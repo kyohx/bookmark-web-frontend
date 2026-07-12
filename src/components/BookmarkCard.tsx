@@ -11,7 +11,11 @@ interface BookmarkCardProps {
 
 export const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onEdit, onDelete, canEdit }) => {
     return (
-        <div className="card" style={{ transition: 'transform 0.2s', height: '100%', display: 'flex', flexDirection: 'column' }}>
+        <article
+            className="card"
+            data-testid="bookmark-card"
+            style={{ transition: 'transform 0.2s', height: '100%', display: 'flex', flexDirection: 'column' }}
+        >
             <div className="flex justify-between items-start">
                 <h3 style={{
                     fontSize: 'var(--font-size-lg)',
@@ -33,6 +37,7 @@ export const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onEdit, on
                                 e.stopPropagation();
                                 onEdit(bookmark);
                             }}
+                            aria-label={`Edit ${bookmark.memo}`}
                             style={{ color: 'var(--color-text-muted)', padding: '4px' }}
                             title="Edit"
                         >
@@ -45,6 +50,7 @@ export const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onEdit, on
                                 e.stopPropagation();
                                 onDelete(bookmark.hashed_id);
                             }}
+                            aria-label={`Delete ${bookmark.memo}`}
                             style={{ color: 'var(--color-error)', padding: '4px' }}
                             title="Delete"
                         >
@@ -89,6 +95,6 @@ export const BookmarkCard: React.FC<BookmarkCardProps> = ({ bookmark, onEdit, on
                     </span>
                 ))}
             </div>
-        </div>
+        </article>
     );
 };
