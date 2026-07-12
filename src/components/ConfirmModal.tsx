@@ -46,10 +46,17 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
                 backdropFilter: 'blur(4px)'
             }}
         >
-            <div className="card" style={{ width: '100%', maxWidth: '400px', position: 'relative' }}>
+            <div
+                className="card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="confirm-modal-title"
+                style={{ width: '100%', maxWidth: '400px', position: 'relative' }}
+            >
                 <button
                     type="button"
                     onClick={onCancel}
+                    aria-label="Close confirmation"
                     style={{ position: 'absolute', top: '16px', right: '16px', color: 'var(--color-text-muted)' }}
                 >
                     <X size={20} />
@@ -57,7 +64,7 @@ export const ConfirmModal: React.FC<ConfirmModalProps> = ({
 
                 <div style={{ display: 'flex', alignItems: 'center', gap: 'var(--spacing-md)', marginBottom: 'var(--spacing-lg)' }}>
                     <AlertTriangle size={24} style={{ color: confirmButtonClass === 'btn-danger' ? 'var(--color-error)' : 'var(--color-primary)' }} />
-                    <h2 style={{ fontSize: 'var(--font-size-xl)', margin: 0 }}>
+                    <h2 id="confirm-modal-title" style={{ fontSize: 'var(--font-size-xl)', margin: 0 }}>
                         {title}
                     </h2>
                 </div>

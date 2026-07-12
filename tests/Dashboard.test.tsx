@@ -67,6 +67,24 @@ describe('Dashboard', () => {
         });
     });
 
+    it('retries bookmark loading once after a transient failure', async () => {
+        vi.mocked(api.getBookmarks)
+            .mockRejectedValueOnce(new Error('temporary failure'))
+            .mockResolvedValueOnce({ items: mockBookmarks });
+
+        render(
+            <BrowserRouter>
+                <Dashboard />
+            </BrowserRouter>
+        );
+
+        await waitFor(() => {
+            expect(screen.getByText('Example Site')).toBeInTheDocument();
+        });
+
+        expect(api.getBookmarks).toHaveBeenCalledTimes(2);
+    });
+
     it('opens delete confirmation modal', async () => {
         render(
             <BrowserRouter>

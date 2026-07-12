@@ -102,16 +102,23 @@ export const BookmarkModal: React.FC<BookmarkModalProps> = ({ isOpen, onClose, o
                 backdropFilter: 'blur(4px)'
             }}
         >
-            <div className="card" style={{ width: '100%', maxWidth: '500px', position: 'relative' }}>
+            <div
+                className="card"
+                role="dialog"
+                aria-modal="true"
+                aria-labelledby="bookmark-modal-title"
+                style={{ width: '100%', maxWidth: '500px', position: 'relative' }}
+            >
                 <button
                     type="button"
                     onClick={onClose}
+                    aria-label="Close bookmark form"
                     style={{ position: 'absolute', top: '16px', right: '16px', color: 'var(--color-text-muted)' }}
                 >
                     <X size={20} />
                 </button>
 
-                <h2 style={{ marginBottom: 'var(--spacing-lg)', fontSize: 'var(--font-size-xl)' }}>
+                <h2 id="bookmark-modal-title" style={{ marginBottom: 'var(--spacing-lg)', fontSize: 'var(--font-size-xl)' }}>
                     {initialData ? 'Edit Bookmark' : 'Add Bookmark'}
                 </h2>
 

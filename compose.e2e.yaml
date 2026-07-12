@@ -1,0 +1,102 @@
+services:
+  db:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      TZ: Asia/Tokyo
+    volumes:
+      - ../bookmark-sample/docker/db/my.conf:/etc/mysql/conf.d/my.cnf:ro
+      - ../bookmark-sample/docker/db/init:/docker-entrypoint-initdb.d:ro
+      - db-store:/var/lib/mysql
+    healthcheck:
+      test: "mysqladmin ping -h 127.0.0.1 -u root -p$$MYSQL_ROOT_PASSWORD"
+      start_period: 60s
+      start_interval: 1s
+      interval: 60s
+      timeout: 5s
+      retries: 10
+
+  redis:
+    image: redis:8.6-alpine
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      start_period: 60s
+      start_interval: 1s
+      interval: 60s
+      timeout: 5s
+      retries: 5
+
+  api:
+    build:
+      context: ../bookmark-sample
+      dockerfile: ./docker/api/Dockerfile
+    working_dir: /opt/app
+    environment:
+      TZ: Asia/Tokyo
+      DATABASE_HOST: db
+      DATABASE_USER: root
+      DATABASE_PASSWORD: root
+      DATABASE_NAME: app
+      DATABASE_DEBUG: 1
+      BLACKLIST_REDIS_URL: redis://redis:6379/0
+      BLACKLIST_REDIS_FAIL_OPEN: 1
+      BLACKLIST_REDIS_DEFAULT_TTL_DAYS: 14
+    volumes:
+      - ../bookmark-sample:/opt/app
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "python",
+          "-c",
+          "import sys, urllib.request; sys.exit(0 if urllib.request.urlopen('http://127.0.0.1:8000/version').status == 200 else 1)",
+        ]
+      start_period: 20s
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  frontend:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      VITE_BACKEND_API_URL: ""
+      VITE_DEV_PROXY_TARGET: http://api:8000
+      VITE_DEV_ALLOWED_HOSTS: frontend,localhost,127.0.0.1
+    depends_on:
+      api:
+        condition: service_healthy
+    healthcheck:
+      test:
+        [
+          "CMD",
+          "node",
+          "-e",
+          "fetch('http://127.0.0.1:5173/login').then((response) => process.exit(response.ok ? 0 : 1)).catch(() => process.exit(1))",
+        ]
+      start_period: 10s
+      interval: 10s
+      timeout: 5s
+      retries: 12
+
+  e2e:
+    build:
+      context: .
+      dockerfile: ./docker/e2e/Dockerfile
+    environment:
+      PLAYWRIGHT_BASE_URL: http://frontend:5173
+      PLAYWRIGHT_API_BASE_URL: http://api:8000
+    depends_on:
+      frontend:
+        condition: service_healthy
+    shm_size: 1gb
+    command: npm run test:e2e
+
+volumes:
+  db-store:

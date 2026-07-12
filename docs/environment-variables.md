@@ -14,6 +14,22 @@
 - **デフォルト値**: 空文字列（Viteプロキシを使用）
 - **例**: `http://localhost:8000`, `https://api.example.com`
 
+### `VITE_DEV_PROXY_TARGET`
+
+Vite 開発サーバーのプロキシ先を上書きします。`VITE_BACKEND_API_URL` を使わず相対パスのまま API に中継したい場合に使います。
+
+- **型**: 文字列（URL）
+- **デフォルト値**: `http://localhost:8000`
+- **主な用途**: Docker Compose 上で `http://api:8000` を指定する
+
+### `VITE_DEV_ALLOWED_HOSTS`
+
+Vite 開発サーバーが受け付けるホスト名をカンマ区切りで指定します。Docker Compose で `frontend` のようなサービス名からアクセスする場合に使います。
+
+- **型**: カンマ区切り文字列
+- **デフォルト値**: 未設定（Vite の既定値）
+- **例**: `frontend,localhost,127.0.0.1`
+
 ## 設定方法
 
 ### 1. `.env.local`ファイルの作成
@@ -58,6 +74,16 @@ npm run dev
 # .env.localファイルを作成しない、または以下のように設定
 VITE_BACKEND_API_URL=
 ```
+
+Docker Compose 上で API コンテナへプロキシする場合:
+
+```bash
+VITE_BACKEND_API_URL=
+VITE_DEV_PROXY_TARGET=http://api:8000
+VITE_DEV_ALLOWED_HOSTS=frontend,localhost,127.0.0.1
+```
+
+E2E 用 Docker イメージでは `.env.local` などのローカル専用ファイルを build context に含めないため、手元の設定に引っ張られず compose 側の値が使われます。
 
 プロキシ設定により、`http://localhost:5173/bookmarks`へのリクエストは自動的に`http://localhost:8000/bookmarks`に転送されます。
 
@@ -131,10 +157,10 @@ npm run build
 
 ### APIリクエストが404エラーになる
 
-**原因**: `VITE_BACKEND_API_URL`が正しく設定されていない、またはバックエンドサーバーが起動していない。
+**原因**: `VITE_BACKEND_API_URL` または `VITE_DEV_PROXY_TARGET` が正しく設定されていない、またはバックエンドサーバーが起動していない。
 
 **解決方法**:
-1. `.env.local`ファイルの`VITE_BACKEND_API_URL`を確認
+1. `.env.local`ファイルの `VITE_BACKEND_API_URL` または `VITE_DEV_PROXY_TARGET` を確認
 2. バックエンドサーバーが起動していることを確認
 3. URLの末尾に`/`が含まれていないことを確認（例: `http://localhost:8000` ✓、`http://localhost:8000/` ✗）
 

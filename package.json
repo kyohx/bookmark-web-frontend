@@ -8,7 +8,10 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "test": "vitest run"
+    "test": "vitest run",
+    "test:e2e": "playwright test",
+    "test:e2e:docker": "docker compose -f compose.e2e.yaml up --build --abort-on-container-exit --exit-code-from e2e e2e",
+    "test:e2e:docker:down": "docker compose -f compose.e2e.yaml down -v"
   },
   "dependencies": {
     "lucide-react": "^0.554.0",
@@ -18,6 +21,7 @@
   },
   "devDependencies": {
     "@eslint/js": "^9.39.1",
+    "@playwright/test": "^1.54.2",
     "@testing-library/jest-dom": "^6.9.1",
     "@testing-library/react": "^16.3.0",
     "@testing-library/user-event": "^14.6.1",

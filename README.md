@@ -20,6 +20,7 @@
 - **Routing**: React Router DOM
 - **Icons**: Lucide React
 - **Testing**: Vitest + React Testing Library
+- **E2E Testing**: Playwright
 
 ## ディレクトリ構造
 
@@ -82,6 +83,23 @@ npm run preview
 
 ```bash
 npm test
+```
+
+### E2Eテストの実行
+
+フロントエンド・API・DB・Redis・Playwright をまとめて Docker Compose で起動して実行します。
+
+前提として sibling ディレクトリに API リポジトリ `../bookmark-sample` が存在する必要があります。
+この compose は E2E 実行専用で、ホスト側ポートは公開しません。
+
+```bash
+npm run test:e2e:docker
+```
+
+テスト実行後に停止済みコンテナとボリュームも含めて片付ける場合:
+
+```bash
+npm run test:e2e:docker:down
 ```
 
 ### Lint
